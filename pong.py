@@ -3,9 +3,10 @@ from sys import exit
 import pygame
 import pygame.freetype
 
-from settings import *
-from paddle import Paddle
 from ball import Ball
+from paddle import Paddle
+from settings import *
+
 
 def game_over():
 
@@ -15,15 +16,20 @@ def game_over():
     """
 
     # Figure out who is the winner
-    if(player_score == 5):
+    if player_score == 5:
         winner_text = f"GAME OVER - PLAYER WINS {player_score}-{opponent_score}"
     else:
         winner_text = f"GAME OVER - OPPONENT WINS {player_score}-{opponent_score}"
-    
+
     # Display the game over text
     text = pygame.freetype.SysFont(pygame.font.get_default_font(), 40)
-    text.render_to(screen, (300,SCREEN_HEIGHT//2 + 50), winner_text, WHITE)
-    text.render_to(screen, (300,SCREEN_HEIGHT//2 + 100), "Press 'r' to restart or 'q' to quit.", WHITE)
+    text.render_to(screen, (300, SCREEN_HEIGHT // 2 + 50), winner_text, WHITE)
+    text.render_to(
+        screen,
+        (300, SCREEN_HEIGHT // 2 + 100),
+        "Press 'r' to restart or 'q' to quit.",
+        WHITE,
+    )
     pygame.display.flip()
 
     # Wait for user input, play again or quit?
@@ -38,6 +44,7 @@ def game_over():
                 if event.key == pygame.K_q:
                     return 0
 
+
 def reset_player_objects():
 
     """
@@ -48,13 +55,16 @@ def reset_player_objects():
     global player_paddle, opponent_paddle, ball
 
     # Recreate the player's paddle
-    player_paddle = Paddle(10,(SCREEN_HEIGHT-PADDLE_HEIGHT)//2)
+    player_paddle = Paddle(10, (SCREEN_HEIGHT - PADDLE_HEIGHT) // 2)
 
     # Recreate the opponent's (ai) paddle
-    opponent_paddle = Paddle(SCREEN_WIDTH-PADDLE_WIDTH-10,(SCREEN_HEIGHT-PADDLE_HEIGHT)//2)
+    opponent_paddle = Paddle(
+        SCREEN_WIDTH - PADDLE_WIDTH - 10, (SCREEN_HEIGHT - PADDLE_HEIGHT) // 2
+    )
 
     # Recreate the ball
     ball = Ball()
+
 
 def update_score():
 
@@ -63,10 +73,11 @@ def update_score():
     """
 
     # Update PLAYER's score
-    GAME_FONT.render_to(screen, (SCREEN_WIDTH/2 - 80,50), str(player_score), WHITE)
+    GAME_FONT.render_to(screen, (SCREEN_WIDTH / 2 - 80, 50), str(player_score), WHITE)
 
     # Update OPPONENT's score
-    GAME_FONT.render_to(screen, (SCREEN_WIDTH/2 + 40,50), str(opponent_score), WHITE)
+    GAME_FONT.render_to(screen, (SCREEN_WIDTH / 2 + 40, 50), str(opponent_score), WHITE)
+
 
 def ai_movement():
 
@@ -79,11 +90,11 @@ def ai_movement():
 
     # Paddle below ball? Move up
     if opponent_paddle.y < ball.y:
-        opponent_paddle.y += MAX_PADDLE_SPEED - 5 # AI moves slower, else unbeatable
+        opponent_paddle.y += MAX_PADDLE_SPEED - 5  # AI moves slower, else unbeatable
 
     # Paddle above ball? Move down.
     if opponent_paddle.y > ball.y:
-        opponent_paddle.y -= MAX_PADDLE_SPEED - 5 # AI moves slower, else unbeatable
+        opponent_paddle.y -= MAX_PADDLE_SPEED - 5  # AI moves slower, else unbeatable
 
     # Hitting roof?
     if opponent_paddle.y <= 0:
@@ -93,19 +104,23 @@ def ai_movement():
     if opponent_paddle.y >= SCREEN_HEIGHT - PADDLE_HEIGHT:
         opponent_paddle.y = SCREEN_HEIGHT - PADDLE_HEIGHT
 
-def AABB(ball,paddle):
+
+def AABB(ball, paddle):
 
     """
     Uses Axis-Aligned Bounding Box to detect a collision
     between the ball and a paddle.
     """
 
-    if(ball.x < paddle.x + PADDLE_WIDTH and
-       ball.x + BALL_RADIUS > paddle.x and
-       ball.y < paddle.y + PADDLE_HEIGHT and
-       ball.y+ BALL_RADIUS > paddle.y):
+    if (
+        ball.x < paddle.x + PADDLE_WIDTH
+        and ball.x + BALL_RADIUS > paddle.x
+        and ball.y < paddle.y + PADDLE_HEIGHT
+        and ball.y + BALL_RADIUS > paddle.y
+    ):
         return 1
     return 0
+
 
 def check_collisions():
 
@@ -118,30 +133,31 @@ def check_collisions():
     # Bouncing on roof or floor
     if ball.y < 0 or ball.y > SCREEN_HEIGHT - BALL_RADIUS:
         ball.dy *= -1
-            
+
     # Bouncing on left or right wall
     if ball.x < 0:
         reset_player_objects()
         opponent_score += 1
         return
-        
+
     if ball.x > SCREEN_WIDTH - BALL_RADIUS:
         reset_player_objects()
         player_score += 1
         return
-            
+
     # Bouncing on paddle
-    if AABB(ball,player_paddle) or AABB(ball,opponent_paddle):
+    if AABB(ball, player_paddle) or AABB(ball, opponent_paddle):
         ball.dx *= -1
         BOUNCE_SOUND.play()
-    
+
     # Paddle going through the roof
     if player_paddle.y < 0:
         player_paddle.y = 0
-    
+
     # Paddle going through the floor
     if player_paddle.y > SCREEN_HEIGHT - PADDLE_HEIGHT:
         player_paddle.y = SCREEN_HEIGHT - PADDLE_HEIGHT
+
 
 def draw_game_objects():
 
@@ -153,30 +169,28 @@ def draw_game_objects():
     screen.fill(BLACK)
 
     update_score()
-    
+
     # Redraw the game objects
     player_paddle.draw(screen)
     opponent_paddle.draw(screen)
     ball.draw(screen)
-    
+
     # Redraw the middle line
     pygame.draw.aaline(
-        screen, 
-        WHITE, 
-        (SCREEN_WIDTH/2,0), 
-        (SCREEN_WIDTH/2,SCREEN_HEIGHT)
+        screen, WHITE, (SCREEN_WIDTH / 2, 0), (SCREEN_WIDTH / 2, SCREEN_HEIGHT)
     )
+
 
 if __name__ == "__main__":
 
     # Initialize pygame
     pygame.init()
     pygame.display.set_caption("Pong")
-    screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
 
     GAME_FONT = pygame.freetype.SysFont(pygame.font.get_default_font(), 80)
-    BOUNCE_SOUND = pygame.mixer.Sound('assets/audio/bounce.wav')
+    BOUNCE_SOUND = pygame.mixer.Sound("assets/audio/bounce.wav")
     BOUNCE_SOUND.set_volume(0.3)
 
     running = True
@@ -185,10 +199,12 @@ if __name__ == "__main__":
         game_objects = []
 
         # Create the player's paddle
-        player_paddle = Paddle(10,(SCREEN_HEIGHT-PADDLE_HEIGHT)//2)
+        player_paddle = Paddle(10, (SCREEN_HEIGHT - PADDLE_HEIGHT) // 2)
 
         # Create the opponent's (ai) paddle
-        opponent_paddle = Paddle(SCREEN_WIDTH-PADDLE_WIDTH-10,(SCREEN_HEIGHT-PADDLE_HEIGHT)//2)
+        opponent_paddle = Paddle(
+            SCREEN_WIDTH - PADDLE_WIDTH - 10, (SCREEN_HEIGHT - PADDLE_HEIGHT) // 2
+        )
 
         # Create the ball
         ball = Ball()
@@ -205,24 +221,24 @@ if __name__ == "__main__":
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
-                
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_DOWN:
                         player_paddle.updateSpeed(0, MAX_PADDLE_SPEED)
                     if event.key == pygame.K_UP:
                         player_paddle.updateSpeed(0, -MAX_PADDLE_SPEED)
-                
+
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_DOWN:
                         player_paddle.updateSpeed(0, -MAX_PADDLE_SPEED)
                     if event.key == pygame.K_UP:
                         player_paddle.updateSpeed(0, MAX_PADDLE_SPEED)
-            
+
             # Update player objects positions
             player_paddle.step()
-            ai_movement() # "step function" for the opponent's (AI's) movement
+            ai_movement()  # "step function" for the opponent's (AI's) movement
             ball.step()
-            
+
             # Check for collisions
             check_collisions()
 
