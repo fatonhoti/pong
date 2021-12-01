@@ -38,7 +38,7 @@ The following instructions should get a demo going on your PC.
 1. Clone the repo
 
    ```
-   git clone https://github.com/faton/pong.git
+   git clone https://github.com/fatonhoti/pong.git
    cd pong
    ```
 3. Install relevant packages
