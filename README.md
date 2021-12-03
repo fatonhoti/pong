@@ -6,7 +6,7 @@
   <h3 align="center">Classic Pong</h3>
 
   <p align="center">
-    A mini-project to practice Object-oriented programming and learn a little bit of PyGame.
+    A mini-project to practice object-oriented programming and learn a little bit of Pygame.
   </p>
 </div>
 
